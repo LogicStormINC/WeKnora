@@ -125,7 +125,8 @@ func multimodalChunks() []*types.Chunk {
 	const info = `[{"url":"u"}]`
 	return []*types.Chunk{
 		{ID: "ocr", ChunkType: types.ChunkTypeImageOCR, Content: "SALES 2025", ImageInfo: info},
-		{ID: "cap", ChunkType: types.ChunkTypeImageCaption, Content: "a bar chart of sales", ImageInfo: info},
+		{ID: "cap", ChunkType: types.ChunkTypeImageCaption, Content: "a bar chart of sales", ImageInfo: info,
+			SourceLocators: types.SourceLocators{{Type: types.SourceLocatorPDF, Page: 7}}},
 	}
 }
 
@@ -150,6 +151,7 @@ func TestIndexImageVectorStoresTheImagesOwnVector(t *testing.T) {
 	assert.Equal(t, types.ChunkTypeImageVector, chunk.ChunkType)
 	assert.Equal(t, "a bar chart of sales", chunk.Content, "the caption is preferred over OCR")
 	assert.Equal(t, "text-parent", chunk.ParentChunkID)
+	assert.Equal(t, multimodalChunks()[1].SourceLocators, chunk.SourceLocators, "image recall must retain its PDF page")
 	assert.True(t, chunk.IsEnabled)
 	assert.Equal(t, int(types.ChunkStatusIndexed), chunk.Status)
 
@@ -170,6 +172,16 @@ func TestIndexImageVectorFallsBackToOCRText(t *testing.T) {
 	for _, c := range repo.chunks {
 		assert.Equal(t, "SALES 2025", c.Content)
 	}
+}
+
+func TestIndexImageVectorHonorsExplicitScannedPageOptIn(t *testing.T) {
+	svc, repo, _, engine := imageVectorFixture(t)
+	enabled := true
+	status := svc.indexImageVector(context.Background(), imageVectorKB(),
+		types.ImageMultimodalPayload{ImageSourceType: "scanned_pdf", ImageVectorEnabled: &enabled},
+		testPNG(t), multimodalChunks(), &imageModel{dims: 3}, engine)
+	require.Equal(t, "indexed", status)
+	require.Len(t, repo.chunks, 1)
 }
 
 func TestIndexImageVectorSkips(t *testing.T) {

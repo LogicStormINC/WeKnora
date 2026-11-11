@@ -834,10 +834,10 @@ func (s *ImageMultimodalService) indexImageVector(
 	if !ok {
 		return ""
 	}
-	// A scanned page is text, which its OCR chunk already carries better
-	// than an image vector can: multimodal embeddings are weakest on dense
-	// text, and a document of such pages would cost a call each.
-	if payload.ImageSourceType == "scanned_pdf" {
+	// Keep the cheap default for scanned pages, but honor the document's
+	// explicit image-vector choice: a PDF page can contain diagrams whose
+	// spatial relationships and colors its OCR and caption do not preserve.
+	if payload.ImageSourceType == "scanned_pdf" && payload.ImageVectorEnabled == nil {
 		return "skipped: scanned page"
 	}
 	// The chunk needs text for reranking and the answer context; the caption
@@ -886,6 +886,7 @@ func (s *ImageMultimodalService) indexImageVector(
 		IsEnabled:       true,
 		Flags:           types.ChunkFlagRecommended,
 		ImageInfo:       source.ImageInfo,
+		SourceLocators:  source.SourceLocators,
 		CreatedAt:       now,
 		UpdatedAt:       now,
 	}

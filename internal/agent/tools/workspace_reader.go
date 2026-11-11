@@ -210,12 +210,6 @@ func (t *workspaceFileReader) read(ctx context.Context, input ReadFileInput) (*t
 			Error:   fmt.Sprintf("failed to read %s: %v", clean, err),
 		}, nil
 	}
-	if strings.TrimSpace(input.Query) == "" {
-		if result := sandboxImageResult(ctx, data, sessionID, clean, rootDir); result != nil {
-			return result, nil
-		}
-	}
-
 	return renderFilePage(ctx, input, data, sessionID, clean, rootDir), nil
 }
 
@@ -364,6 +358,11 @@ func renderFilePage(ctx context.Context, input ReadFileInput, data []byte, sessi
 		logger.Warnf(ctx, "[Tool][ReadSandboxFile] file grew during read: session=%s path=%s size=%d limit=%d",
 			sessionID, clean, total, maxReadSandboxDownloadBytes)
 		return oversizedSandboxFileResult(sessionID, clean, rootDir, total)
+	}
+	if strings.TrimSpace(input.Query) == "" {
+		if result := sandboxImageResult(ctx, data, sessionID, clean, rootDir); result != nil {
+			return result
+		}
 	}
 	return renderFileContent(ctx, input, data, sessionID, clean, rootDir)
 }

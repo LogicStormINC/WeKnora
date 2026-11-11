@@ -21,14 +21,19 @@ func (t *ReadFileTool) WithArtifacts(source ArtifactFileSource) *ReadFileTool {
 }
 
 func (t *ReadFileTool) readArtifact(ctx context.Context, input ReadFileInput) *types.ToolResult {
-	if t.artifacts == nil {
-		return &types.ToolResult{Success: false, Error: "generated file access is unavailable in this conversation"}
-	}
 	if input.Offset < 0 || input.LineOffset < 0 || input.Limit < 0 || input.MaxBytes < 0 {
 		return &types.ToolResult{Success: false, Error: "read offsets and limits must be non-negative"}
 	}
 	if strings.TrimSpace(input.Query) != "" && input.LineOffset != 0 {
 		return &types.ToolResult{Success: false, Error: "line_offset cannot be combined with query"}
+	}
+	if t.knowledgeImages != nil && strings.HasPrefix(input.Path, types.ResourceScheme) {
+		if data, err := t.knowledgeImages(ctx, input.Path); err == nil {
+			return renderFilePage(ctx, input, data, resolveSessionID(ctx), input.Path, types.ResourceScheme)
+		}
+	}
+	if t.artifacts == nil {
+		return &types.ToolResult{Success: false, Error: "generated file access is unavailable in this conversation"}
 	}
 	data, err := t.artifacts.Read(ctx, input.Path)
 	if err != nil {

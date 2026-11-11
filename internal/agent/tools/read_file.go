@@ -19,17 +19,18 @@ import (
 type ReadFileTool struct {
 	BaseTool
 	sessionBound
-	artifacts   ArtifactFileSource
-	webPages    WebPageSource
-	attachments *attachmentFileReader
-	workspace   *workspaceFileReader
-	skills      *skills.Manager
-	shell       bool
+	artifacts       ArtifactFileSource
+	knowledgeImages func(context.Context, string) ([]byte, error)
+	webPages        WebPageSource
+	attachments     *attachmentFileReader
+	workspace       *workspaceFileReader
+	skills          *skills.Manager
+	shell           bool
 }
 
 type ReadFileInput struct {
-	Path       string `json:"path" jsonschema:"Path inside the current session sandbox (relative to /workspace), skill:// resource, saved web:// page, resource:// generated file, or attachment://<handle>; attachment images use the full attachment://<handle>/images/N address"` //nolint:lll // JSON schema tags must remain on one line.
-	LineOffset int    `json:"line_offset,omitempty" jsonschema:"Web, artifacts and attachments: character offset within a long line; continue at next_line_offset"`                                                                                                                  //nolint:lll // JSON schema tags must remain on one line.
+	Path       string `json:"path" jsonschema:"Path inside the current session sandbox (relative to /workspace), skill:// resource, saved web:// page, resource:// generated file or in-scope knowledge image, or attachment://<handle>; attachment images use the full attachment://<handle>/images/N address"` //nolint:lll // JSON schema tags must remain on one line.
+	LineOffset int    `json:"line_offset,omitempty" jsonschema:"Web, artifacts and attachments: character offset within a long line; continue at next_line_offset"`                                                                                                                                              //nolint:lll // JSON schema tags must remain on one line.
 	Offset     int    `json:"offset,omitempty" jsonschema:"1-based line number; continue at next_offset"`
 	Limit      int    `json:"limit,omitempty" jsonschema:"Text lines (default 2000); attachment images (default 1, max 4; full always 1)"` //nolint:lll // JSON schema tags must remain on one line.
 	MaxBytes   int64  `json:"max_bytes,omitempty" jsonschema:"Text byte budget; at most 65536 (web: 51200)"`
@@ -88,6 +89,9 @@ func (t *ReadFileTool) boundLayout() sandbox.WorkspaceLayout {
 
 func (t *ReadFileTool) updateDescription() {
 	var scopes []string
+	if t.knowledgeImages != nil {
+		scopes = append(scopes, "Knowledge images: read exact resource:// image references returned by search_knowledge or read_document in the current KB/document/tag scope. Use detail=full with focus to inspect chart values, arrows and spatial relationships; OCR and captions may omit them.")
+	}
 	if t.artifacts != nil {
 		scopes = append(scopes, "Generated files: read resource:// references from this conversation "+
 			"or completed child results. "+
