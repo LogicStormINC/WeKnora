@@ -269,7 +269,7 @@ function scrollToPageFraction(page: number, fraction: number) {
   const el = pageElements.get(page)
   if (!box || !el) return
   // Instant, like scrollRectIntoContainer: nothing can cancel it mid-way.
-  box.scrollTop = Math.max(0, el.offsetTop + el.offsetHeight * fraction - box.clientHeight / 3)
+  box.scrollTop = Math.max(0, el.offsetTop + el.offsetHeight * fraction - (fraction > 0 ? box.clientHeight / 3 : 0))
 }
 
 async function pageText(pageNumber: number): Promise<string> {
