@@ -1,0 +1,19 @@
+@font-face {
+  font-family: TrenchBrand;
+  src: url('/trench-brand.woff2') format('woff2');
+  font-display: swap;
+  font-weight: 100 900;
+}
+
+.trench-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--td-text-color-primary);
+  text-decoration: none;
+}
+
+.trench-brand-name {
+  font: 600 22px/1.2 TrenchBrand, sans-serif;
+  white-space: nowrap;
+}

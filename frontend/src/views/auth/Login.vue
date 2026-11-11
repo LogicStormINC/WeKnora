@@ -96,8 +96,9 @@
     </div>
 
     <!-- Logo - Top Left -->
-    <a href="https://github.com/Tencent/WeKnora" target="_blank" class="header-logo" :title="$t('common.github')">
-      <img src="@/assets/img/weknora.png" alt="WeKnora" class="logo-image" />
+    <a href="https://github.com/LogicStormINC/WeKnora" target="_blank" rel="noopener noreferrer" class="header-logo trench-brand" :title="$t('common.github')">
+      <img src="/trench-logo.png" alt="" class="logo-image" width="32" height="32" />
+      <span class="trench-brand-name">Trench AI</span>
     </a>
 
     <!-- Header Links - Top Right -->
@@ -1195,8 +1196,9 @@ onMounted(async () => {
   cursor: pointer;
 
   .logo-image {
-    width: 120px;
-    height: auto;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
   }
 }
 
@@ -1645,10 +1647,6 @@ onMounted(async () => {
   .header-logo {
     top: 26px;
     left: 40px;
-
-    .logo-image {
-      width: 100px;
-    }
   }
 
   .header-links {
@@ -1695,10 +1693,6 @@ onMounted(async () => {
   .header-logo {
     top: 22px;
     left: 30px;
-
-    .logo-image {
-      width: 80px;
-    }
   }
 
   .showcase-subtitle {
@@ -1756,10 +1750,6 @@ onMounted(async () => {
   .header-logo {
     top: 18px;
     left: 20px;
-
-    .logo-image {
-      width: 70px;
-    }
   }
 
   .showcase-subtitle {
@@ -1828,10 +1818,6 @@ html[theme-mode="dark"] {
 
   .connection-line {
     stroke: rgba(255, 255, 255, 0.25);
-  }
-
-  .header-logo .logo-image {
-    filter: invert(1) hue-rotate(180deg) brightness(1.1);
   }
 
   .header-link {
