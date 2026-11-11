@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Tencent/WeKnora/internal/agent/tools"
 	"github.com/Tencent/WeKnora/internal/models/chat"
 	"github.com/Tencent/WeKnora/internal/types"
 )
@@ -36,7 +35,7 @@ func (e *AgentEngine) appendToolImages(
 		}
 		if e.config != nil && e.config.ChatModelSupportsVision {
 			note := ""
-			if call.Name == tools.ToolSearchKnowledge {
+			if len(call.Result.Data) > 0 {
 				note = e.modelContext.ToolImageSourcesNote(call.Result)
 			}
 			blocks = append(blocks, imageBlock{

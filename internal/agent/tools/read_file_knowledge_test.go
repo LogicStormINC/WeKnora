@@ -49,7 +49,7 @@ func TestReadFileKnowledgeImagesKeepDocumentAndTenantScope(t *testing.T) {
 	chunks := &knowledgeImageTestChunks{chunk: chunk}
 	docs := &readDocKnowledgeService{docs: map[string]*types.Knowledge{"doc": {ID: "doc", TenantID: 7, KnowledgeBaseID: "kb"}}}
 	targets := types.SearchTargets{{Type: types.SearchTargetTypeKnowledge, KnowledgeBaseID: "kb", TenantID: 7, KnowledgeIDs: []string{"doc"}}}
-	reader := NewReadFileTool(nil).WithKnowledgeImages(func(ctx context.Context, path string) ([]byte, error) {
+	reader := NewReadFileTool(nil).WithKnowledgeImages(func(ctx context.Context, path string) ([]byte, *types.SearchResult, error) {
 		return ReadKnowledgeImage(ctx, targets, chunk.ID, path, chunks, docs, storage)
 	})
 	read := func(path string) *types.ToolResult {
@@ -62,6 +62,10 @@ func TestReadFileKnowledgeImagesKeepDocumentAndTenantScope(t *testing.T) {
 	got := read(ref)
 	require.True(t, got.Success, got.Error)
 	require.Len(t, got.Images, 1)
+	require.Equal(t, []string{"chunk"}, got.Data["context_images"])
+	rows := got.Data["results"].([]map[string]interface{})
+	require.Equal(t, "doc", rows[0]["knowledge_id"])
+	require.Equal(t, "kb", rows[0]["knowledge_base_id"])
 	require.Equal(t, "full", got.ImageDetail)
 	require.Equal(t, ref, storage.ref, "read the requested image, not the chunk's first image")
 	for name, change := range map[string]func(){

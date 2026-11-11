@@ -1624,7 +1624,8 @@ function getToolReferenceItems(event: any): KnowledgeReferenceLike[] {
       }));
   }
 
-  if (toolName === 'search_knowledge' || toolName === 'knowledge_search') {
+  if (toolName === 'search_knowledge' || toolName === 'knowledge_search' ||
+      (toolName === 'read_file' && toolData.display_type === 'image_view')) {
     const results = Array.isArray(toolData.results) ? toolData.results : [];
     const fallbackKnowledgeBaseId = getToolKnowledgeBaseId(toolData);
     return mergeDocumentReferences(results
@@ -1633,6 +1634,8 @@ function getToolReferenceItems(event: any): KnowledgeReferenceLike[] {
         id: item.chunk_id || `${item.knowledge_id}-${item.result_index ?? index + 1}`,
         knowledge_id: item.knowledge_id,
         knowledge_title: item.faq_standard_question || item.knowledge_title,
+        knowledge_filename: item.knowledge_filename,
+        source_locators: item.source_locators,
         knowledge_base_id: item.knowledge_base_id || fallbackKnowledgeBaseId,
         chunk_index: item.result_index ?? index + 1,
         chunk_type: item.chunk_type,

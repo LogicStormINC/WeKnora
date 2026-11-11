@@ -20,7 +20,7 @@ type ReadFileTool struct {
 	BaseTool
 	sessionBound
 	artifacts       ArtifactFileSource
-	knowledgeImages func(context.Context, string) ([]byte, error)
+	knowledgeImages func(context.Context, string) ([]byte, *types.SearchResult, error)
 	webPages        WebPageSource
 	attachments     *attachmentFileReader
 	workspace       *workspaceFileReader

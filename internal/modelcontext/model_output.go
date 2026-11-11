@@ -50,6 +50,11 @@ func (r *sourceRegistry) ModelOutput(result *types.ToolResult) string {
 		}
 		output := r.modelKnowledgeOutput(mode, mapsValue(result.Data["results"]), result.Output)
 		return annotateSearchNotes(r.annotateModeFallbacks(output, result.Data), result.Data)
+	case "image_view":
+		if rows := mapsValue(result.Data["results"]); len(rows) > 0 {
+			return r.modelKnowledgeOutput("image", rows, "") + "\n" + result.Output
+		}
+		return r.CompactKnownText(result.Output)
 	case "knowledge_chunks_list":
 		return r.modelKnowledgeChunksOutput(result.Data, result.Output)
 	case "document_info":

@@ -321,7 +321,10 @@ func (r *Registry) ModelToolResultForTool(toolName string, result *types.ToolRes
 	copyResult.Output = r.resources.EncodeText(r.encodeToolPrivateResult(toolName, result.Output))
 	copyResult.Error = r.resources.EncodeText(r.encodeToolPrivateResult(toolName, result.Error))
 	var modelOutput string
-	if sourceOutputAllowed(toolName) {
+	// Only the authorized knowledge-image reader supplies structured sources.
+	// Ordinary file text remains opaque and cannot mint citation identities.
+	knowledgeImage := toolName == "read_file" && result.Success && stringValue(result.Data, "display_type") == "image_view" && len(mapsValue(result.Data["results"])) > 0
+	if sourceOutputAllowed(toolName) || knowledgeImage {
 		modelOutput = r.sources.ModelOutput(&copyResult)
 	} else if copyResult.Success {
 		modelOutput = copyResult.Output

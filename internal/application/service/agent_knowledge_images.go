@@ -25,19 +25,19 @@ func (s *agentService) registerKnowledgeImageFiles(registry *tools.ToolRegistry,
 		reader = tools.NewReadFileTool(nil)
 		registry.RegisterTool(reader)
 	}
-	reader.WithKnowledgeImages(func(ctx context.Context, ref string) ([]byte, error) {
+	reader.WithKnowledgeImages(func(ctx context.Context, ref string) ([]byte, *types.SearchResult, error) {
 		ids, err := knowledgeImageChunkIDs(ctx, s.db, config.SearchTargets, ref)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		for _, id := range ids {
-			data, err := tools.ReadKnowledgeImage(ctx, config.SearchTargets, id, ref,
+			data, chunk, err := tools.ReadKnowledgeImage(ctx, config.SearchTargets, id, ref,
 				s.chunkService, s.knowledgeService, s.knowledgeBaseService)
 			if err == nil {
-				return data, nil
+				return data, chunk, nil
 			}
 		}
-		return nil, fmt.Errorf("knowledge image is unavailable in the current scope")
+		return nil, nil, fmt.Errorf("knowledge image is unavailable in the current scope")
 	})
 }
 
@@ -47,7 +47,7 @@ func knowledgeImageChunkIDs(ctx context.Context, db *gorm.DB, targets types.Sear
 		return nil, fmt.Errorf("invalid image reference")
 	}
 	var ids []string
-	err := db.WithContext(ctx).Table("chunk_images AS i").Distinct("c.id").
+	err := db.WithContext(ctx).Table("chunk_images AS i").Group("c.id").Order("CASE WHEN c.chunk_type = 'image_vector' THEN 0 ELSE 1 END").Order("c.id").
 		Joins("JOIN chunks c ON c.id = i.chunk_id").
 		Joins("JOIN resource_bindings b ON b.owner_id = c.knowledge_id AND b.owner_type = ? AND b.tenant_id = c.tenant_id", types.ResourceOwnerKnowledge).
 		Joins("JOIN resources r ON r.id = b.resource_id AND r.tenant_id = c.tenant_id").
