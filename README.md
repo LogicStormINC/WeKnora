@@ -1,11 +1,6 @@
-<p align="center">
-  <a href="https://weknora.weixin.qq.com">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="./docs/images/readme/hero-en-dark.svg">
-      <img src="./docs/images/readme/hero-en-light.svg" alt="WeKnora: find the answers, and put knowledge to work. Tencent's open-source knowledge management framework for Q&A, tasks and wikis." width="100%">
-    </picture>
-  </a>
-</p>
+<h1 align="center">
+  <img src="./frontend/public/trench-logo.png" alt="" width="40" height="40"> Trench AI
+</h1>
 
 <p align="center">
   <a href="https://weknora.weixin.qq.com"><img alt="Website" src="https://img.shields.io/badge/website-weknora.weixin.qq.com-b8863b?style=flat-square&labelColor=101f38"></a>
